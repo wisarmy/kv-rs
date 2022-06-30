@@ -4,6 +4,7 @@ mod memory;
 mod sleddb;
 
 pub use memory::MemTable;
+pub use sleddb::SledDb;
 
 /// 对存储的抽象，我们不关心数据存在哪儿，但需要定义外界如何和存储打交道
 pub trait Storage {
