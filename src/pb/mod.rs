@@ -2,6 +2,7 @@ pub mod abi;
 
 use crate::KvError;
 use abi::{command_request::RequestData, *};
+use bytes::Bytes;
 use http::StatusCode;
 use prost::Message;
 
@@ -69,6 +70,19 @@ impl From<i64> for Value {
     }
 }
 
+impl<const N: usize> From<&[u8; N]> for Value {
+    fn from(buf: &[u8; N]) -> Self {
+        Bytes::copy_from_slice(&buf[..]).into()
+    }
+}
+impl From<Bytes> for Value {
+    fn from(buf: Bytes) -> Self {
+        Self {
+            value: Some(value::Value::Binary(buf)),
+        }
+    }
+}
+
 impl TryFrom<&[u8]> for Value {
     type Error = KvError;
 
@@ -93,6 +107,16 @@ impl From<Value> for CommandResponse {
         Self {
             status: StatusCode::OK.as_u16() as _,
             values: vec![v],
+            ..Default::default()
+        }
+    }
+}
+/// 从 Vec<Value> 转换成 CommandResponse
+impl From<Vec<Value>> for CommandResponse {
+    fn from(values: Vec<Value>) -> Self {
+        Self {
+            status: StatusCode::OK.as_u16() as _,
+            values,
             ..Default::default()
         }
     }

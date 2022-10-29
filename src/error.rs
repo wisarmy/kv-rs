@@ -1,14 +1,14 @@
 use crate::Value;
 use thiserror::Error;
-#[derive(Debug, Error, PartialEq)]
+#[derive(Debug, Error)]
 pub enum KvError {
     #[error("Not found for table: {0}, key: {1}")]
     NotFound(String, String),
     #[error("Cannot parse command: `{0}`")]
     InvalidCommand(String),
-    #[error("Cannot convert value: {:0} to {1}")]
+    #[error("Cannot convert value: {0:?} to {1}")]
     ConvertError(Value, &'static str),
-    #[error("Cannot process command {0} with table: {1}, key: {2}. Error: {}")]
+    #[error("Cannot process command {0} with table: {1}, key: {2}. Error: {3}")]
     StorageError(&'static str, String, String, String),
     #[error("Failed to encode protobuf message")]
     EncodeError(#[from] prost::EncodeError),
@@ -18,4 +18,8 @@ pub enum KvError {
     Internal(String),
     #[error("Failed to access sled db")]
     SledError(#[from] sled::Error),
+    #[error("I/O error")]
+    IoError(#[from] std::io::Error),
+    #[error("Frame is larger than max size")]
+    FrameError,
 }
